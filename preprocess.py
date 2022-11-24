@@ -1,18 +1,19 @@
 import pandas as pd
-import ast
+import json
 import numpy as np
 import spacy
 
-
 def fetch_name_from_dict(obj):
     L = []
-    for info in ast.literal_eval(obj):
+    obj = json.loads(obj)
+    for info in obj:
         L.append(info['name'])
     return L
 
 def fetch_director(obj):
     L = []
-    for info in ast.literal_eval(obj):
+    obj = json.loads(obj)
+    for info in obj:
         if info['job']=='Director':
             L.append(info['name'])
     return L
@@ -20,7 +21,8 @@ def fetch_director(obj):
 def top_4_cast(obj):
     L = []
     counter = 0
-    for info in ast.literal_eval(obj):
+    obj = json.loads(obj)
+    for info in obj:
         if counter < 4:
             L.append(info['name'])
             counter += 1
@@ -32,7 +34,7 @@ def lemmatize(sents):
     nlp = spacy.load("en_core_web_sm")
     docs = sents.tolist()
     lem_sents = []
-    for doc in nlp.pipe(docs, batch_size=32, n_process=3, disable=["parser", "ner"]):
+    for doc in nlp.pipe(docs, batch_size=512, n_process=3, disable=["parser", "ner"]):
         lem_tokens = [token.lemma_ for token in doc]
         lem_sent = " ".join(lem_tokens)
         lem_sents.append(lem_sent)
