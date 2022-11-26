@@ -2,6 +2,8 @@ import pandas as pd
 import json
 import numpy as np
 import spacy
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
 
 def fetch_name_from_dict(obj):
     L = []
@@ -30,7 +32,13 @@ def top_4_cast(obj):
             break
     return L
 
-def lemmatize(sents):
+def stemming(sent):
+    ps = PorterStemmer()
+    stem_tokens = [ps.stem(token) for token in sent.split()]
+    stem_sent = " ".join(stem_tokens)
+    return stem_sent
+
+def lemmatize(sents): # taking around half a minute
     nlp = spacy.load("en_core_web_sm")
     docs = sents.tolist()
     lem_sents = []
@@ -66,8 +74,9 @@ def preprocess(df):
     df['director'] = df['director'].apply(lambda x:[a.replace(" ","") for a in x])
     df['keywords'] = df['keywords'].apply(lambda x:[a.replace(" ","") for a in x])
     
-    ### Lemmatizing "overview" ###
-    df['overview'] = lemmatize(df.overview)
+    ### Lemmatizing/Stemming "overview" ###
+    # df['overview'] = lemmatize(df.overview)
+    df['overview'] = df['overview'].apply(stemming)
 
     ### creating tag out of features ###
     df['overview'] = df['overview'].apply(lambda x: [x])
